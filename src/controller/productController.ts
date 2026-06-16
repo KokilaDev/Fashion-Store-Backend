@@ -1,3 +1,5 @@
+import fs from "fs"
+import path from "path"
 import { Request, Response } from "express";
 import { ProductModel } from "../model/productModel";
 
@@ -78,10 +80,30 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
+
+        const product = await ProductModel.findById(id)
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" })
+        }
+
+        if (product.image) {
+            const imagePath = path.join(
+                __dirname, 
+                "../../uploads/", 
+                product.image
+            )
+
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath)
+            }
+        }
+
         await ProductModel.findByIdAndDelete(id)
+
         res.status(200).json({
             message: "Product deleted successfully"
         })
+
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
