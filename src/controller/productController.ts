@@ -74,3 +74,15 @@ export const updateProduct = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Server error", error });
     }
 }
+
+export const deleteProduct = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params
+        await ProductModel.findByIdAndDelete(id)
+        res.status(200).json({
+            message: "Product deleted successfully"
+        })
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+}
