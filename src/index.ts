@@ -5,6 +5,7 @@ import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
 import productRoutes from "./routes/productRoutes";
 import wishlistRoutes from "./routes/wishlistRoutes";
+import cartRoutes from "./routes/cartRoutes";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/wishlist", wishlistRoutes);
+app.use("/api/v1/cart", cartRoutes);
 
 connectDB();
 
