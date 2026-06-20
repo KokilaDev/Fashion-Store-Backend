@@ -20,31 +20,38 @@ export const getCart = async (req: Request, res: Response) => {
 
 export const addToCart = async (req: Request, res: Response) => {
     try {
+        console.log("BODY =", req.body);
+
         const { userId, product } = req.body;
+
+        console.log("USER ID =", userId);
 
         let cart = await CartModel.findOne({ userId });
 
         if (!cart) {
             cart = new CartModel({
                 userId,
-                items: [{ ...product }],
+                items: [],
             });
-        } else {
-            const existing = cart.items.find(
-                (item) => item.productId === product.productId
-            );
+        } 
+        
+        const existing = cart.items.find(
+            (item) => String(item.productId) === String(product.productId)
+        );
 
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                cart.items.push(product);
-            }
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.items.push(product);
         }
+
+        console.log("CART BEFORE SAVE =", cart);
 
         await cart.save();
         res.json(cart);
 
     } catch (error: any) {
+        console.error("ADD TO CART ERROR =", error);
         res.status(500).json({ message: error.message });
     }
 };

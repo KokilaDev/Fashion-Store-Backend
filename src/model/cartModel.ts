@@ -18,6 +18,7 @@ const cartSchema = new Schema<ICart>(
         userId: {
             type: String,
             required: true,
+            unique: true,
         },
 
         items: [
