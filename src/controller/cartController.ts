@@ -22,7 +22,7 @@ export const addToCart = async (req: Request, res: Response) => {
     try {
         console.log("BODY =", req.body);
 
-        const { userId, product } = req.body;
+        const { userId, product, size, qty } = req.body;
 
         console.log("USER ID =", userId);
 
@@ -34,15 +34,29 @@ export const addToCart = async (req: Request, res: Response) => {
                 items: [],
             });
         } 
+
+        if (!product?.productId) {
+            return res.status(400).json({ message: "Invalid product data" });
+        }
+
+        console.log("PRODUCT =", product);
         
         const existing = cart.items.find(
-            (item) => String(item.productId) === String(product.productId)
+            i => i.productId === product.productId && i.size === size
         );
 
         if (existing) {
-            existing.qty += 1;
+            existing.qty += qty;
         } else {
-            cart.items.push(product);
+            cart.items.push({
+                productId: product.productId,
+                name: product.name,
+                price: product.price,
+                image: product.image,
+                qty: qty,
+                size: product.size || "M",
+                availableSizes: product.availableSizes || {},
+            });
         }
 
         console.log("CART BEFORE SAVE =", cart);
@@ -78,14 +92,14 @@ export const updateQty = async (req: Request, res: Response) => {
 
 export const removeItem = async (req: Request, res: Response) => {
     try {
-        const { userId, productId } = req.body;
+        const { userId, productId, size } = req.body;
 
         const cart = await CartModel.findOne({ userId });
 
         if (!cart) return res.status(404).json({ message: "Cart not found" });
 
         cart.items = cart.items.filter(
-            (item) => item.productId !== productId
+            item => !(item.productId === productId && item.size === size)
         );
 
         await cart.save();

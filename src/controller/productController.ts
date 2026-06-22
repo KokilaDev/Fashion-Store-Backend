@@ -6,6 +6,7 @@ import { ProductModel } from "../model/productModel";
 export const addProduct = async (req: Request, res: Response) => {
   try {
     const { name, category, price, stock, description } = req.body;
+    const sizes = JSON.parse(req.body.sizes);
 
     const image = req.file?.filename;
 
@@ -18,6 +19,7 @@ export const addProduct = async (req: Request, res: Response) => {
       stock,
       description,
       image,
+      sizes,
     });
 
     await newProduct.save();
@@ -47,6 +49,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
         const { name, category, price, stock, description } = req.body
+        const sizes = JSON.parse(req.body.sizes);
 
         const image = req.file?.filename
 
@@ -56,6 +59,7 @@ export const updateProduct = async (req: Request, res: Response) => {
             price,
             stock,
             description,
+            sizes,
         }
 
         if (image) {
