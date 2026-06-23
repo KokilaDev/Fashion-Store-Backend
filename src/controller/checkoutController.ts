@@ -6,7 +6,23 @@ export const placeOrder = async (
   res: Response
 ) => {
   try {
-    const order = await CheckoutModel.create(req.body);
+    const today = new Date();
+
+    const datePart =
+        today.getFullYear().toString() +
+        String(today.getMonth() + 1).padStart(2, "0") +
+        String(today.getDate()).padStart(2, "0");
+
+    const randomPart = Math.floor(
+        1000 + Math.random() * 9000
+    );
+
+    const orderId = `ORD-${datePart}-${randomPart}`;
+
+    const order = await CheckoutModel.create({
+        ...req.body,
+        orderId,
+    });
 
     res.status(201).json({
       success: true,
@@ -112,5 +128,26 @@ export const updateOrderStatus = async (
     res.status(500).json({
       message: error.message,
     });
+  }
+};
+
+export const getAllOrders = async (
+  req: Request, 
+  res: Response
+) => {
+  try {
+    const orders = await CheckoutModel.find()
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      orders,
+    });
+
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    })
   }
 };

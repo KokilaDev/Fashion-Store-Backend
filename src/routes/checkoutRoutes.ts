@@ -1,6 +1,7 @@
 import express from "express";
 import { 
     calculateCheckout,
+    getAllOrders,
     getOrderById,
     getOrdersByUser,
     placeOrder, 
@@ -18,5 +19,7 @@ router.get("/user/:userId", getOrdersByUser);
 router.get("/:id", getOrderById);
 
 router.put("/:id/status", updateOrderStatus);
+
+router.get("/", getAllOrders);
 
 export default router;

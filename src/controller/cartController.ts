@@ -78,7 +78,9 @@ export const updateQty = async (req: Request, res: Response) => {
 
         if (!cart) return res.status(404).json({ message: "Cart not found" });
 
-        const item = cart.items.find(i => i.productId === productId);
+        const item = cart.items.find(
+            i => i.productId?.toString() === productId
+        );
 
         if (item) item.qty = qty;
 
@@ -92,20 +94,31 @@ export const updateQty = async (req: Request, res: Response) => {
 
 export const removeItem = async (req: Request, res: Response) => {
     try {
-        const { userId, productId, size } = req.body;
+        const { userId, productId, size } = req.body || {};
+
+        if (!userId || !productId) {
+            return res.status(400).json({ message: "Missing data" });
+        }
 
         const cart = await CartModel.findOne({ userId });
 
-        if (!cart) return res.status(404).json({ message: "Cart not found" });
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
 
-        cart.items = cart.items.filter(
-            item => !(item.productId === productId && item.size === size)
-        );
+        cart.items = cart.items.filter((item: any) => {
+            return !(
+                item.productId.toString() === productId &&
+                item.size === size
+            );
+        });
 
         await cart.save();
-        res.json(cart);
+
+        res.json({ success: true, cart });
 
     } catch (error: any) {
+        console.error("REMOVE ERROR:", error);
         res.status(500).json({ message: error.message });
     }
 };

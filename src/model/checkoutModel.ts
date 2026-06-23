@@ -3,6 +3,8 @@ import { Document, model, Schema } from "mongoose";
 export interface ICheckout extends Document {
   userId: string;
 
+  orderId: string;
+
   billingDetails: {
     fullName: string;
     email: string;
@@ -26,6 +28,7 @@ export interface ICheckout extends Document {
     productId: string;
     name: string;
     qty: number;
+    size: string;
     price: number;
   }[];
 
@@ -42,6 +45,11 @@ const checkoutSchema = new Schema<ICheckout>(
       type: String,
       ref: "User",
       required: true,
+    },
+
+    orderId: {
+      type: String,
+      unique: true,
     },
 
     billingDetails: {
