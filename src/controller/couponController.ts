@@ -21,6 +21,7 @@ export const createCoupon = async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, coupon });
 
   } catch (error: any) {
+    console.error("CREATE COUPON ERROR:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -36,14 +37,16 @@ export const getCoupons = async (req: Request, res: Response) => {
 
 export const validateCoupon = async (req: Request, res: Response) => {
   try {
-    const { code, total } = req.body;
+    let { code, total, userBirthMonth } = req.body;
 
-    if (!code || total == null) {
-      return res.status(400).json({ message: "Code and total required" });
+    if (!code || typeof total !== "number") {
+      return res.status(400).json({ message: "Code and valid total required" });
     }
 
+    code = code.toUpperCase();
+
     const coupon = await CouponModel.findOne({
-      code: code.toUpperCase(),
+      code,
       isActive: true,
     });
 
@@ -51,20 +54,28 @@ export const validateCoupon = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Invalid coupon" });
     }
 
-    if (coupon.expiryDate < new Date()) {
+    if (new Date(coupon.expiryDate).getTime() < Date.now()) {
       return res.status(400).json({ message: "Coupon expired" });
     }
 
-    if (coupon.minOrderAmount && total < coupon.minOrderAmount) {
+    if (coupon.minOrderAmount > total) {
       return res.status(400).json({ message: "Min order not met" });
+    }
+
+    const currentMonth = new Date().getMonth() + 1;
+
+    if (coupon.isBirthdayMonthOffer) {
+      if (Number(userBirthMonth) !== currentMonth) {
+        return res.status(400).json({ message: "Not your birthday month" });
+      }
     }
 
     let discount = 0;
 
     if (coupon.type === "percentage") {
-      discount = (total * coupon.discount) / 100;
+      discount = Math.min((total * coupon.discount) / 100, total);
     } else {
-      discount = coupon.discount;
+      discount = Math.min(coupon.discount, total);
     }
 
     const finalTotal = Math.max(total - discount, 0);
@@ -73,10 +84,7 @@ export const validateCoupon = async (req: Request, res: Response) => {
       success: true,
       discount,
       finalTotal,
-      coupon: {
-        code: coupon.code,
-        type: coupon.type,
-      },
+      coupon,
     });
 
   } catch (error: any) {
@@ -127,3 +135,21 @@ export const updateCoupon = async (req: Request, res: Response) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getActiveCoupons = async (req: Request, res: Response) => {
+  try {
+    const offer = await CouponModel.find({ 
+      isActive: true,
+      expiryDate: { $gt: new Date() }
+    }).sort({ priority: -1 });
+
+    console.log("Active Coupon:", offer);
+
+    res.json(offer);
+    
+  } catch (error: any) {
+    res.status(500).json({ 
+      message: error.message 
+    });
+  }
+}

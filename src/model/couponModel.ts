@@ -2,11 +2,18 @@ import { Document, model, Schema } from "mongoose";
 
 export interface ICoupon extends Document {
     code: string;
+    title: string;
     discount: number;
     type: string;
+    description: string;
     expiryDate: Date;
     isActive: boolean;
     minOrderAmount: number;
+
+    event?: string;
+    applicableMonths?: number[];
+    isBirthdayMonthOffer?: boolean;
+    priority?: number;
 }
 
 const couponSchema = new Schema<ICoupon>(
@@ -18,6 +25,10 @@ const couponSchema = new Schema<ICoupon>(
       uppercase: true,
       trim: true,
     },
+    title: {
+      type: String,
+      required: true,
+    },
     discount: {
       type: Number,
       required: true,
@@ -26,6 +37,10 @@ const couponSchema = new Schema<ICoupon>(
       type: String,
       enum: ["percentage", "fixed"],
       default: "percentage",
+    },
+    description: {
+      type: String,
+      default: ""
     },
     expiryDate: {
       type: Date,
@@ -39,6 +54,31 @@ const couponSchema = new Schema<ICoupon>(
       type: Number,
       default: 0,
     },
+
+    event: {
+      type: String,
+      enum: [
+        "new-year",
+        "christmas",
+        "valentine",
+        "december-31",
+        "birthday",
+        "birthday-month",
+        "order-value",
+      ],
+    },
+    applicableMonths: {
+      type: [Number],
+      default: []
+    },
+    isBirthdayMonthOffer: {
+      type: Boolean,
+      default: false,
+    },
+    priority: {
+      type: Number,
+      default: 1,
+    }
   },
   { timestamps: true }
 );

@@ -4,7 +4,8 @@ import {
     getCoupons,
     validateCoupon,
     deleteCoupon,
-    updateCoupon
+    updateCoupon,
+    getActiveCoupons
 } from "../controller/couponController"
 
 const router = express.Router();
@@ -18,5 +19,7 @@ router.post("/validate", validateCoupon);
 router.delete("/delete/:id", deleteCoupon);
 
 router.put("/update/:id", updateCoupon);
+
+router.get("/active", getActiveCoupons);
 
 export default router;
