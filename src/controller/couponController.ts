@@ -138,18 +138,19 @@ export const updateCoupon = async (req: Request, res: Response) => {
 
 export const getActiveCoupons = async (req: Request, res: Response) => {
   try {
-    const offer = await CouponModel.find({ 
+    const today = new Date();
+
+    const offer = await CouponModel.find({
       isActive: true,
-      expiryDate: { $gt: new Date() }
+      startDate: { $lte: today },
+      expiryDate: { $gte: today }
     }).sort({ priority: -1 });
 
-    console.log("Active Coupon:", offer);
-
     res.json(offer);
-    
+
   } catch (error: any) {
-    res.status(500).json({ 
-      message: error.message 
+    res.status(500).json({
+      message: error.message
     });
   }
-}
+};

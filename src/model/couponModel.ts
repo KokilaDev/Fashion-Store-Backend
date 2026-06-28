@@ -6,6 +6,7 @@ export interface ICoupon extends Document {
     discount: number;
     type: string;
     description: string;
+    startDate: Date;
     expiryDate: Date;
     isActive: boolean;
     minOrderAmount: number;
@@ -41,6 +42,10 @@ const couponSchema = new Schema<ICoupon>(
     description: {
       type: String,
       default: ""
+    },
+    startDate: {
+      type: Date,
+      required: true,
     },
     expiryDate: {
       type: Date,
