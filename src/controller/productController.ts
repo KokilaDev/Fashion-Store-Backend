@@ -3,16 +3,38 @@ import path from "path"
 import { Request, Response } from "express";
 import { ProductModel } from "../model/productModel";
 
+const generateProductId = async () => {
+  const lastProduct = await ProductModel.findOne()
+    .sort({ createdAt: -1 })
+    .select("productId");
+
+  let nextNumber = 1;
+
+  if (lastProduct?.productId) {
+    const lastNumber = parseInt(lastProduct.productId.split("-")[1]);
+    nextNumber = lastNumber + 1;
+  }
+
+  const formatted = String(nextNumber).padStart(4, "0");
+  return `P-${formatted}`;
+}
+
 export const addProduct = async (req: Request, res: Response) => {
   try {
     const { name, category, price, stock, description } = req.body;
-    const sizes = JSON.parse(req.body.sizes);
+    const sizes = 
+      typeof req.body.sizes === "string" 
+        ? JSON.parse(req.body.sizes)
+        : req.body.sizes;
 
     const image = req.file?.filename;
+
+    const productId = await generateProductId();
 
     console.log("FILE:", req.file);
 
     const newProduct = new ProductModel({
+      productId,
       name,
       category,
       price,
@@ -29,6 +51,7 @@ export const addProduct = async (req: Request, res: Response) => {
       product: newProduct,
     });
   } catch (error) {
+    console.error("🔥 PRODUCT ADD ERROR:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
@@ -49,7 +72,10 @@ export const updateProduct = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
         const { name, category, price, stock, description } = req.body
-        const sizes = JSON.parse(req.body.sizes);
+        const sizes = 
+          typeof req.body.sizes === "string" 
+            ? JSON.parse(req.body.sizes)
+            : req.body.sizes;
 
         const image = req.file?.filename
 

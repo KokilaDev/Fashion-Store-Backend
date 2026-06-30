@@ -1,23 +1,28 @@
 import { Request, Response } from "express";
 import { CheckoutModel } from "../model/checkoutModel";
 
+const generateOrderId = async () => {
+  const lastOrder = await CheckoutModel.findOne()
+    .sort({ createdAt: -1 })
+    .select("orderId");
+
+  let nextNumber = 1;
+
+  if (lastOrder?.orderId) {
+    const lastNumber = parseInt(lastOrder.orderId.split("-")[1]);
+    nextNumber = lastNumber + 1;
+  }
+
+  const formatted = String(nextNumber).padStart(4, "0");
+  return `O-${formatted}`;
+}
+
 export const placeOrder = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const today = new Date();
-
-    const datePart =
-        today.getFullYear().toString() +
-        String(today.getMonth() + 1).padStart(2, "0") +
-        String(today.getDate()).padStart(2, "0");
-
-    const randomPart = Math.floor(
-        1000 + Math.random() * 9000
-    );
-
-    const orderId = `ORD-${datePart}-${randomPart}`;
+    const orderId = await generateOrderId();
 
     const order = await CheckoutModel.create({
         ...req.body,
@@ -120,12 +125,26 @@ export const updateOrderStatus = async (
     const order = await CheckoutModel.findByIdAndUpdate(
       req.params.id,
       { status },
-      { new: true }
+      { 
+        new: true,
+        runValidators: true,
+      }
     );
 
-    res.status(200).json(order);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      order,
+    });
   } catch (error: any) {
     res.status(500).json({
+      success: false,
       message: error.message,
     });
   }
@@ -137,7 +156,7 @@ export const getAllOrders = async (
 ) => {
   try {
     const orders = await CheckoutModel.find()
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: 1 });
 
     res.status(200).json({
       success: true,

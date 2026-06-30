@@ -4,7 +4,8 @@ import {
     login,
     getMyDetails,
     registerAdmin,
-    refreshToken
+    refreshToken,
+    logout
 } from '../controller/authController';
 import { authenticate } from '../middleware/auth';
 import { requireRole } from '../middleware/role';
@@ -26,5 +27,7 @@ router.post(
 )
 
 router.post('/refresh-token', refreshToken)
+
+router.post('/logout', authenticate, logout)
 
 export default router

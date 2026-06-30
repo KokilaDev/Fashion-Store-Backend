@@ -5,6 +5,7 @@ import { signAccessToken, signRefreshToken } from "../util/token"
 import { AuthRequest } from "../middleware/auth"
 import dotenv from "dotenv"
 import jwt from "jsonwebtoken"
+import { CustomerModel } from "../model/customerModel"
 
 dotenv.config()
 
@@ -33,7 +34,24 @@ export const registerUser = async (req: Request, res: Response) => {
             roles: [UserRole.USER],
             approved: true,
         })
+
+        const count = await CustomerModel.countDocuments();
+
+        const customerId = 
+            "C-" + String(count + 1).padStart(4, "0");
+
         await newUser.save()
+        
+        await CustomerModel.create({
+            customerId,
+            userId: newUser._id,
+            name,
+            email,
+            contact,
+            orders: 0,
+            totalPurchases: 0,
+            tier: "New",
+        })
 
         res.status(201).json({ message: "User registered successfully" })
 
@@ -168,5 +186,18 @@ export const refreshToken = async (req: Request, res: Response) => {
         })
     } catch (error) {
         res.status(403).json({ message: "Invalid refresh token" })
+    }
+}
+
+export const logout = async (req: Request, res: Response) => {
+    try {
+        return res.status(200).json({ 
+            message: "Logout successful" 
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: "Logout failed",
+            error: error
+        })
     }
 }

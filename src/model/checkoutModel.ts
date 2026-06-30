@@ -36,7 +36,8 @@ export interface ICheckout extends Document {
   discountAmount: number;
   total: number;
 
-  status: string;
+  paymentStatus: "Pending" | "Paid";
+  status: "Pending" | "Shipped" | "Delivered" | "Cancelled";
 }
 
 const checkoutSchema = new Schema<ICheckout>(
@@ -106,6 +107,8 @@ const checkoutSchema = new Schema<ICheckout>(
 
         name: String,
 
+        size: String,
+
         qty: Number,
 
         price: Number,
@@ -118,9 +121,15 @@ const checkoutSchema = new Schema<ICheckout>(
 
     total: Number,
 
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid"],
+      default: "Pending",
+    },
+
     status: {
       type: String,
-      enum: ["Pending", "Paid", "Shipped", "Delivered", "Cancelled"],
+      enum: ["Pending", "Shipped", "Delivered", "Cancelled"],
       default: "Pending",
     },
   },

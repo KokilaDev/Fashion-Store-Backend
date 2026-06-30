@@ -122,3 +122,14 @@ export const removeItem = async (req: Request, res: Response) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const clearCart = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  await CartModel.findOneAndUpdate(
+    { userId },
+    { items: [] }
+  );
+
+  res.json({ message: "Cart cleared" });
+};

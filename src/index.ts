@@ -8,6 +8,7 @@ import wishlistRoutes from "./routes/wishlistRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import couponRoutes from "./routes/couponRoutes";
 import checkoutRoutes from "./routes/checkoutRoutes";
+import customerRoutes from "./routes/customerRoutes";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/api/v1/wishlist", wishlistRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/coupons", couponRoutes);
 app.use("/api/v1/orders", checkoutRoutes);
+app.use("/api/v1/customers", customerRoutes);
 
 connectDB();
 
