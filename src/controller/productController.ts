@@ -138,3 +138,21 @@ export const deleteProduct = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Server error", error });
     }
 }
+
+export const getLatestProducts = async (req: Request, res: Response) => {
+  try {
+    const products = await ProductModel.find({ active: true })
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};

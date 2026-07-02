@@ -4,6 +4,7 @@ import {
     addProduct, 
     deleteProduct, 
     getAllProducts, 
+    getLatestProducts, 
     updateProduct 
 } from "../controller/productController";
 
@@ -24,5 +25,7 @@ router.put(
 )
 
 router.delete("/:id", deleteProduct)
+
+router.get("/latest", getLatestProducts)
 
 export default router

@@ -12,8 +12,10 @@ dotenv.config()
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string
 
 export const registerUser = async (req: Request, res: Response) => {
+    console.log("REGISTER USER BODY:", req.body)
+
     try {
-        const { name, address, dob, contact, email, password } = req.body
+        const { name, email, password } = req.body
 
         const existingUser = await UserModel.findOne({ email: email })
 
@@ -26,9 +28,6 @@ export const registerUser = async (req: Request, res: Response) => {
 
         const newUser = new UserModel({
             name,
-            address,
-            dob,
-            contact,
             email,
             password: hashedPassword,
             roles: [UserRole.USER],
@@ -47,15 +46,18 @@ export const registerUser = async (req: Request, res: Response) => {
             userId: newUser._id,
             name,
             email,
-            contact,
+            contact: "",
             orders: 0,
             totalPurchases: 0,
             tier: "New",
         })
 
+        console.log("Customer Created");
+
         res.status(201).json({ message: "User registered successfully" })
 
-    } catch (error) {
+    } catch (error: any) {
+        console.log("REGISTER USER ERROR:", error.message || error);
         res.status(500).json({ 
             message: "Server error", 
             error: error
@@ -91,9 +93,6 @@ export const login = async (req: Request, res: Response) => {
                 refreshToken,
                 id: user._id,
                 name: user.name,
-                address: user.address,
-                dob: user.dob,
-                contact: user.contact,
             }
         })
 
@@ -111,7 +110,9 @@ export const getMyDetails = async (req: AuthRequest, res: Response) => {
         return res.status(401).json({ message: "Unauthorized" })
     }
 
-    const user = await UserModel.findById(req.user.sub).select("-password")
+    const userId = req.user.sub || req.user.id;
+
+    const user = await UserModel.findById(userId).select("-password")
 
     if (!user) {
         res.status(404).json({
@@ -119,7 +120,7 @@ export const getMyDetails = async (req: AuthRequest, res: Response) => {
         })
     }
 
-    const { _id, name, email, address, dob, contact, roles } = user as any
+    const { _id, name, email, roles } = user as any
 
     res.status(200).json({
         message: "OK",
@@ -127,9 +128,6 @@ export const getMyDetails = async (req: AuthRequest, res: Response) => {
             id: _id,
             name,
             email,
-            address,
-            dob,
-            contact,
             roles
         }
     })
