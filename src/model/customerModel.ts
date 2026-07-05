@@ -31,7 +31,7 @@ const customerSchema = new Schema<ICustomer>({
   },
   contact: {
     type: String,
-    required: true,
+    required: false,
   },
   orders: {
     type: Number,

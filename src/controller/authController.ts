@@ -71,11 +71,17 @@ export const login = async (req: Request, res: Response) => {
 
         const user = await UserModel.findOne({ email })
 
+        console.log("USER:", user);
+
         if (!user) {
             return res.status(401).json({ message: "User not found" })
         }
 
         const isValid = await bcrypt.compare(password, user.password)
+
+        console.log("INPUT PASSWORD :", password);
+        console.log("DB PASSWORD :", user!.password);
+        console.log("MATCH :", isValid);
 
         if (!isValid) {
             return res.status(401).json({ message: "Invalid credentials" })
@@ -157,11 +163,13 @@ export const registerAdmin = async (req: Request, res: Response) => {
             data: { email: user.email, roles: user.roles } 
         })
 
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ 
-            message: "Internal server error"
-        })
+    } catch (error: any) {
+        console.error("REGISTER ADMIN ERROR:", error);
+
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
     }
 }
 
