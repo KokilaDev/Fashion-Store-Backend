@@ -62,6 +62,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
     } catch (error: any) {
         console.log("REGISTER USER ERROR:", error.message || error);
+        alert("Register fail")
         res.status(500).json({ 
             message: "Server error", 
             error: error
