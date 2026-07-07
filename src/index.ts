@@ -22,6 +22,14 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+// mount routes
+app.get("/", (req, res) => {
+    res.send("Backend Running...");
+    console.log(req);
+});
+
+
 app.use("/uploads", express.static("uploads"));
 
 app.use("/api/v1/auth", authRoutes);
@@ -36,4 +44,5 @@ connectDB();
 
 app.listen(PORT, () => {
     console.log("Server running on port: ", PORT);
+    
 });
