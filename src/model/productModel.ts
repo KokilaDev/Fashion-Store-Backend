@@ -1,41 +1,39 @@
 import { Document, model, Schema } from "mongoose";
 
 export interface IProduct extends Document {
-    productId: string;
+    id: string;
     name: string;
-    category: string;
     price: number;
-    stock: number;
-    description: string;
+    originalPrice?: number;
     image: string;
-    active: boolean;
-
-    sizes: {
-        XS: number;
-        S: number;
-        M: number;
-        L: number;
-        XL: number;
-    };
+    category: string;
+    sizes: string[];
+    isTrending: boolean;
+    isNewProduct: boolean;
+    rating: Number;
+    description: string;
+    stock: number;
 }
 
 const productSchema = new Schema<IProduct>(
     {
-        productId: { type: String, unique: true },
-        name: { type: String, required: true },
-        category: { type: String, required: true },
+        id: { type: String, unique: true, required: true },
+        name: { type: String, required: true, trim: true },
         price: { type: Number, required: true },
-        stock: { type: Number, required: true },
-        description: { type: String, required: false },
-        image: { type: String, required: false },
-        active: { type: Boolean, default: true },
-        sizes: { 
-            XS: { type: Number, default: 0 },
-            S: { type: Number, default: 0 },
-            M: { type: Number, default: 0 },
-            L: { type: Number, default: 0 },
-            XL: { type: Number, default: 0 },
-        }
+        originalPrice: { type: Number, default: 0 },
+        image: { type: String, default: "" },
+        category: { type: String, required: true },
+        sizes: { type: [String], default: [] },
+        isTrending: { type: Boolean, default: false },
+        isNewProduct: { type: Boolean, default: false },
+        rating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5
+        },
+        description: { type: String, default: "" },
+        stock: { type: Number, required: true, default: 0 },
     },
     { timestamps: true }
 );

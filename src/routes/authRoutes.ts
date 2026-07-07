@@ -5,7 +5,8 @@ import {
     getMyDetails,
     registerAdmin,
     refreshToken,
-    logout
+    logout,
+    updateMyDetails
 } from '../controller/authController';
 import { authenticate } from '../middleware/auth';
 import { requireRole } from '../middleware/role';
@@ -19,10 +20,12 @@ router.post('/login', login)
 
 router.get('/me', authenticate, getMyDetails)
 
+router.put('/profile', authenticate, updateMyDetails)
+
 router.post(
     '/admin/register', 
-    // authenticate, 
-    // requireRole([UserRole.ADMIN]), 
+    authenticate, 
+    requireRole([UserRole.ADMIN]), 
     registerAdmin
 )
 

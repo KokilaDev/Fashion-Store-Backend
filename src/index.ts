@@ -7,7 +7,7 @@ import productRoutes from "./routes/productRoutes";
 import wishlistRoutes from "./routes/wishlistRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import couponRoutes from "./routes/couponRoutes";
-import checkoutRoutes from "./routes/checkoutRoutes";
+import checkoutRoutes from "./routes/orderRoutes";
 import customerRoutes from "./routes/customerRoutes";
 
 dotenv.config();

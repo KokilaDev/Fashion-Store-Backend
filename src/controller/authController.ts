@@ -30,6 +30,10 @@ export const registerUser = async (req: Request, res: Response) => {
             name,
             email,
             password: hashedPassword,
+            phone: "",
+            address: "",
+            city: "",
+            zip: "",
             roles: [UserRole.USER],
             approved: true,
         })
@@ -112,31 +116,87 @@ export const login = async (req: Request, res: Response) => {
 }
 
 export const getMyDetails = async (req: AuthRequest, res: Response) => {
-    if (!req.user) {
-        return res.status(401).json({ message: "Unauthorized" })
-    }
+    try {    
+        console.log("AUTH USER:", req.user);
 
-    const userId = req.user.sub || req.user.id;
+        if (!req.user) {
+            return res.status(401).json({ 
+                message: "Unauthorized" 
+            })
+        }
 
-    const user = await UserModel.findById(userId).select("-password")
+        const userId = req.user.sub;
 
-    if (!user) {
-        res.status(404).json({
-            message: "User not found" 
+        console.log("USER ID FROM TOKEN:", userId);
+
+        const user = await UserModel.findById(userId).select("-password")
+
+        console.log("FOUND USER:", user);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found" 
+            })
+        }
+
+        // const { _id, name, email, roles } = user as any
+
+        return res.status(200).json({
+            message: "OK",
+            data: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                roles: user.roles,
+                phone: user.phone,
+                address: user.address,
+                city: user.city,
+                zip: user.zip,
+                approved: user.approved
+            }
+        })
+    } catch (error) {
+        console.error("GET MY DETAILS ERROR:", error);
+        res.status(500).json({ 
+            message: "Server error", 
+            error: error
         })
     }
+}
 
-    const { _id, name, email, roles } = user as any
+export const updateMyDetails = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.user?.sub;
 
-    res.status(200).json({
-        message: "OK",
-        data: {
-            id: _id,
-            name,
-            email,
-            roles
+        const { name, email, phone, address, city, zip } = req.body;
+
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            userId,
+            { name, email, phone, address, city, zip },
+            { new: true }
+        ).select("-password");
+
+        if (!updatedUser) {
+            return res.status(404).json({ 
+                success: false,
+                message: "User not found" 
+            });
         }
-    })
+
+        res.status(200).json({
+            success: true,
+            message: "User details updated successfully",
+            data: updatedUser
+        });
+
+    } catch (error) {
+        console.error("UPDATE MY DETAILS ERROR:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error
+        });
+    }
 }
 
 export const registerAdmin = async (req: Request, res: Response) => {
