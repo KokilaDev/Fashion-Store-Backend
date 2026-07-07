@@ -27,7 +27,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
     origin: [
       "http://localhost:5173",
-      "https://aura-fashion-store-sigma.vercel.app/",
+      "https://aura-fashion-store-alpha.vercel.app",
     ],
     credentials: true,
 }));
