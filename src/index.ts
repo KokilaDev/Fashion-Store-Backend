@@ -32,16 +32,13 @@ app.use(cors({
     credentials: true,
 }));
 
-
 app.use(express.json());
-
 
 // mount routes
 app.get("/", (req, res) => {
     res.send("Backend Running...");
     console.log(req);
 });
-
 
 app.use("/uploads", express.static("uploads"));
 
